@@ -10,13 +10,14 @@ def main():
     for user in storeage['Users']:
         username = user['UserName']
         res = client.list_access_keys(UserName=username)
-        for access_key in res['AccessKeyMetadata']:
-            access_key_id = access_key['AccessKeyId']
+        for status in res['AccessKeyMetadata']:
+            access_key_id = status['AccessKeyId']
             key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
             if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
-                print(username + access_key_id)
-                client.delete_access_key(UserName=username, AccessKeyId=access_key_id)
-        
+                client.update_access_key(
+                UserName=username,
+                AccessKeyId=status['AccessKeyId'],
+                Status='Inactive')
 
 if __name__ == "__main__":
     main()
