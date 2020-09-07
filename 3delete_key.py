@@ -14,7 +14,7 @@ def main():
             access_key_id = access_key['AccessKeyId']
             statusid = access_key['Status']
             key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
-            if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A' and statusid == 'Inactive':
+            if statusid == 'Inactive':
                 print(username)
                 client.delete_access_key(UserName=username, AccessKeyId=access_key_id)
         

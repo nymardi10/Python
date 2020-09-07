@@ -28,7 +28,7 @@ def main():
                     age = days_old(create_date)
                     if age < MAX_AGE:
                         continue
-                    create_access_key(username)
+                    #create_access_key(username)
                     print(f'Key {access_key_id} for {username} expired 'f'(age={age} days.')
                 
 def days_old(create_date):
