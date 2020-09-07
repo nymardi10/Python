@@ -13,6 +13,7 @@ def main():
         for status in res['AccessKeyMetadata']:
             access_key_id = status['AccessKeyId']
             key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
+            print(username)
             if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
                 client.update_access_key(
                 UserName=username,

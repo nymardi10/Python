@@ -12,9 +12,10 @@ def main():
         res = client.list_access_keys(UserName=username)
         for access_key in res['AccessKeyMetadata']:
             access_key_id = access_key['AccessKeyId']
+            statusid = access_key['Status']
             key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
-            if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
-                print(username + access_key_id)
+            if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A' and statusid == 'Inactive':
+                print(username)
                 client.delete_access_key(UserName=username, AccessKeyId=access_key_id)
         
 
