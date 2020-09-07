@@ -20,18 +20,21 @@ def main():
             username = user['UserName']
             
             res = client.list_access_keys(UserName=username)
-            for access_key in res['AccessKeyMetadata']:
+            #for access_key in res['AccessKeyMetadata']:
                 
                 #access_key_id = access_key['AccessKeyId']
-                create_date = access_key['CreateDate']
-                print('<----------====================---------->')
+            create_date = res['AccessKeyMetadata']['AccessKeyId']
+            print('<----------====================---------->')
                 #key_last_used(access_key_id, username)
 
-                age = days_old(create_date)
-                if age < MAX_AGE:
-                    continue
-                else:
-                    access_key_count(username)
+            age = days_old(create_date)
+            if age < MAX_AGE:
+                continue
+            else:
+                access_key_count(username)
+                print(username)
+
+                   
                 
 def days_old(create_date):
         now = datetime.now(timezone.utc)
@@ -60,15 +63,9 @@ def access_key_count(user_name):
     for user in users:
         if (user.access_key_1_active == 'true' and user.access_key_2_active == 'false'):
             #client.create_access_key(UserName=user_name) 
-            print(user)        
-            print('<--1111111111111111111111-->')  
-        elif (user.access_key_1_active == 'true' and user.access_key_2_active == 'true'):
-            print(user)
-            print('<--2222222222222222222222-->')   
-        elif (user.access_key_1_active == 'false' and user.access_key_2_active == 'false'):
-            print(user)
-            print('<--3333333333333333333333-->')  
-            print("\r")
+            print(user.user)        
+        else:
+            continue
 
 
 if __name__ == '__main__':
