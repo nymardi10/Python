@@ -29,7 +29,7 @@ def create_tags(uname, key_id):
     UserName=uname,
     Tags=[
         {
-            'Key': 'Access Key Id',
+            'Key': key_id,
             'Value': key_id
        },
     ]
