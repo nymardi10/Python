@@ -28,7 +28,5 @@ def create_access_key(uname):
     print(user_access_key['AccessKey']['SecretAccessKey'])
 
     
-
-    
 if __name__ == "__main__":
     main()
