@@ -7,15 +7,17 @@ def main():
     response = client.list_users()
     for user in response['Users']:
         username = user['UserName']
-       
-        create_access_key(username)        
-        print(username)
 
-  
-def create_access_key(uname):
-    client.create_access_key(UserName=uname)
-    print(uname)
+        untag_user(username)
 
-    
+def untag_user(uname):
+    client.untag_user(
+    UserName=uname,
+    TagKeys=[
+        'inactive', 
+    ]
+)
+
+
 if __name__ == "__main__":
     main()
