@@ -13,8 +13,9 @@ def main():
 
   
 def create_access_key(uname):
-    client.create_access_key(UserName=uname)
-    print(uname)
+    list_users = client.create_access_key(UserName=uname)
+    print(list_users['AccessKey']['AccessKeyId'])
+    print(list_users['AccessKey']['SecretAccessKey'])
 
     
 if __name__ == "__main__":
