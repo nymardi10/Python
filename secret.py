@@ -9,12 +9,12 @@ def main():
 
 
 
-def create_secret():
+def create_secret(access_key, secret_key, uname):
     response = client.create_secret(
     ClientRequestToken='UserName-90ab-cdef-fedc-ba987SECRET1',
     Description='UserName AWS secret created with the CLI',
     Name='UserName',
-    SecretString='{"Access Key":"AKHOiho9JK00LK","Secret Key":"BnQw!XDWgaE?!@#eartg345gk4eT9XGTT29"}',
+    SecretString='{"Access Key":{access_key},"Secret Key":{secret_key}}',
     )
 
     print(response)

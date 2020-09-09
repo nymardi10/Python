@@ -14,13 +14,15 @@ def main():
             access_key_id = status['AccessKeyId']
             key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
             create_tags(username, access_key_id)
-            #if key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
-                #create_tags(username, access_key_id)
-                #print("Tagging " + username + " with old key")
-                #client.update_access_key(
-                #UserName=username,
-                #AccessKeyId=status['AccessKeyId'],
-                #Status='Inactive')
+            if not key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
+                print(username + 'Untagged')
+            else:
+                create_tags(username, access_key_id)
+                print("Tagging " + username + " with old key")
+                client.update_access_key(
+                UserName=username,
+                AccessKeyId=status['AccessKeyId'],
+                Status='Inactive')
             print(username)
 
 

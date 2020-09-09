@@ -8,11 +8,9 @@ def main():
     response = client.list_users()
     for user in response['Users']:
         username = user['UserName']
-        #for keys in username['AccessKeyMetadata']:
+        print(username)
+        create_access_key(username)             
        
-        create_access_key(username)   
-           
-        print(user)
 
   
 def create_access_key(uname):
@@ -29,14 +27,7 @@ def create_secret(access_key, secret_key, uname):
     secret.update_secret(
     SecretId=uname,
     Description=uname,
-    SecretString='{} {}'.format('Access Key: '+ access_key, 'Secret Key: '+secret_key)
-
-    #access_key,secret_key
-       
-    #SecretId=uname,
-    #Description=uname,
-    #Name=uname,
-    #SecretString= '{"Access Key":{access_key},"Secret Key":{secret_key}}'
+    SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
     )
 
 
