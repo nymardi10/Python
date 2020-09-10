@@ -10,8 +10,7 @@ EMAIL_TO   = 'isyeniben@gmail.com'
 MAX_AGE    = 0
 
 
-def main():
-    
+def main():    
     
     paginator = client.get_paginator('list_users')
 

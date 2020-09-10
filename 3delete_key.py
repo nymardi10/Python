@@ -10,10 +10,14 @@ def main():
     for user in storeage['Users']:
         username = user['UserName']
         tags = client.list_user_tags(UserName=username)
-        key_ids = tags['Tags'][0]['Value']
-        
-        delete_access_key(username, key_ids)
-        untag_user(username, key_ids)
+        for alltags in tags['Tags']:
+            key_ids = alltags['Key']
+            if key_ids:
+                delete_access_key(username, key_ids)
+                untag_user(username, key_ids)
+                print(key_ids)
+            else:
+                print('nothing')
 
 def untag_user(uname, key_id):
     client.untag_user(
