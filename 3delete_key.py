@@ -15,7 +15,6 @@ def main():
             if key_ids:
                 delete_access_key(username, key_ids)
                 untag_user(username, key_ids)
-                print(key_ids)
             else:
                 print('nothing')
 

@@ -2,7 +2,7 @@ import boto3
 from datetime import datetime, timezone
 
 client = boto3.client('iam')
-MAX_AGE    = 0
+MAX_AGE = 0
 
 def main():
 
@@ -17,7 +17,7 @@ def main():
             age = days_old(create_date)
            
             if age > MAX_AGE or key_list['AccessKeyLastUsed']['ServiceName'] == 'N/A':
-                print("Tagging " + username + " old key and set to Inactive")
+                print("Tagging " + username + " old key and set it to Inactive")
                 client.update_access_key(
                 UserName=username,
                 AccessKeyId=status['AccessKeyId'],

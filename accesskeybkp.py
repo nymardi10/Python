@@ -30,7 +30,7 @@ def main():
                         continue
                     print(f'Key {access_key_id} for {username} expired 'f'(age={age} days.')
                 
-                    client.update_access_key(UserName=username, AccessKeyId=access_key_id, Status='Inactive')
+                    #client.update_access_key(UserName=username, AccessKeyId=access_key_id, Status='Inactive')
 
                    # send_email_report(EMAIL_TO, username, age, access_key_id)
 
@@ -44,7 +44,7 @@ def send_email_report(email_to, username, age, access_key_id):
 
         try:
             response =ses.send_email(
-             source=EMAIL_FROM,
+             Source=EMAIL_FROM,
              Destination={
                 'ToAddresses':[EMAIL_TO]
              },
