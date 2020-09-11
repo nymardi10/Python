@@ -1,23 +1,60 @@
 import boto3
+from datetime import datetime, timezone
 
 client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
-from botocore.exceptions import ClientError
 
 EMAIL_FROM = 'nymardi@gmail.com'
 EMAIL_TO   = 'isyeniben@gmail.com'
-MAX_AGE    = 90
-
+MAX_AGE    = 0
 
 def main():
 
     response = client.list_users()
     for user in response['Users']:
         username = user['UserName']
-        print(username)
-        create_access_key(username)   
-        send_email_report(EMAIL_TO, username, MAX_AGE , username)       
+        res = client.list_access_keys(UserName=username)
+        for status in res['AccessKeyMetadata']:
+            access_key_id = status['AccessKeyId']
+            key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
+            create_date = status['CreateDate']
+            age = days_old(create_date)
+            print(age)
+
+            if age > MAX_AGE:
+                continue
+            print("Tagging " + username + " old key and set it to Inactive")
+            client.update_access_key(
+            UserName=username,
+            AccessKeyId=status['AccessKeyId'],
+            Status='Inactive')
+            create_tags(username, access_key_id)
+            create_access_key(username)   
+            send_email_report(EMAIL_TO, username, MAX_AGE , username)
+
+def days_old(create_date):
+        now = datetime.now(timezone.utc)
+        age = now - create_date
+        return age.days    
+
+def create_tags(uname, key_id):
+       client.tag_user(
+    UserName=uname,
+    Tags=[
+        {
+            'Key': key_id,
+            'Value': key_id
+       },
+    ]
+)
+
+def de_activate_key(username, Access_Key_Id):
+    client.update_access_key(
+                UserName=username,
+                AccessKeyId=Access_Key_Id,
+                Status='Inactive')
+    print('deactivate')
          
 def create_access_key(uname):
     list_users = client.create_access_key(UserName=uname)
