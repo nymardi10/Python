@@ -4,7 +4,6 @@ client = boto3.client('iam')
 
 def main():
     userpaginate = client.get_paginator('list_users')
-    #keypaginate  = client.get_paginator('list_access_keys')
 
     for user in userpaginate.paginate():
         for username in user['Users']:

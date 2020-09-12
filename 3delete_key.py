@@ -1,8 +1,6 @@
 import boto3
 
-
 client = boto3.client('iam')
-
 
 def main():
 
@@ -15,8 +13,6 @@ def main():
             if key_ids:
                 delete_key(username, key_ids)
                 untag_user(username, key_ids)
-            else:
-                print('nothing')
 
 def untag_user(uname, key_id):
     client.untag_user(

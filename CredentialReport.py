@@ -10,7 +10,6 @@ def main():
     body = response['Content'].decode('utf-8')
     lines = body.split('\n')
     users = [User(*line.split(',')) for line in lines[1:]]
-    #print(users)
 
     for user in users:
         if (user.access_key_1_active == 'true' and user.access_key_2_active == 'true'):
