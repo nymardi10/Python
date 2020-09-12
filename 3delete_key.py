@@ -13,7 +13,7 @@ def main():
         for alltags in tags['Tags']:
             key_ids = alltags['Key']
             if key_ids:
-                delete_access_key(username, key_ids)
+                delete_key(username, key_ids)
                 untag_user(username, key_ids)
             else:
                 print('nothing')
@@ -26,7 +26,7 @@ def untag_user(uname, key_id):
     ]
 )   
 
-def delete_access_key(uname, key_ids):
+def delete_key(uname, key_ids):
     client.delete_access_key(UserName=uname, AccessKeyId=key_ids)
 
         

@@ -5,9 +5,9 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM = 'nymardi@gmail.com'
-EMAIL_TO   = 'isyeniben@gmail.com'
-MAX_AGE    = 0
+EMAIL_TO     = 'nymardi@gmail.com'
+EMAIL_FROM   = 'isyeniben@gmail.com'
+MAX_AGE      = 0
 
 def main():
 
@@ -17,18 +17,12 @@ def main():
         res = client.list_access_keys(UserName=username)
         for status in res['AccessKeyMetadata']:
             access_key_id = status['AccessKeyId']
-            key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
+            #key_list = client.get_access_key_last_used(AccessKeyId=access_key_id)
             create_date = status['CreateDate']
             age = days_old(create_date)
-            print(age)
-
             if age > MAX_AGE:
                 continue
-            print("Tagging " + username + " old key and set it to Inactive")
-            client.update_access_key(
-            UserName=username,
-            AccessKeyId=status['AccessKeyId'],
-            Status='Inactive')
+            print("Creating " + username + " key and set it to Active")
             create_tags(username, access_key_id)
             create_access_key(username)   
             send_email_report(EMAIL_TO, username, MAX_AGE , username)
