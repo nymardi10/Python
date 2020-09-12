@@ -60,7 +60,7 @@ def check_for_creation():
             create_date = status['CreateDate']
             age = days_old(create_date)
             if age >= MAX_AGE:
-                print("Creating " + username + " key and set it to Active")
+                print("Creating " + username + " Access Key")
                 create_tags(username, create_acc_key(username)) 
                 send_new_key_email_report(username, username, MAX_AGE , username)
 
