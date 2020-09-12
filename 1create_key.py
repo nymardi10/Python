@@ -56,15 +56,18 @@ def check_for_creation():
     for user in response['Users']:
         username = user['UserName']
         res = client.list_access_keys(UserName=username)
+        print('*')
         for status in res['AccessKeyMetadata']:
             access_key_id = status['AccessKeyId']
             create_date = status['CreateDate']
             age = days_old(create_date)
+            print('**')
             if age >= MAX_AGE:
                 print("Creating " + username + " Access Key")
                 create_tags(username, create_acc_key(username)) 
                 send_new_key_email_report(username, username, MAX_AGE , username)
     else:
+        print('***')
         print('All keys up to date')
 
 def check_for_deactivation():
