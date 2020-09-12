@@ -52,6 +52,7 @@ def create_tags(uname, key_id):
 
 def check_for_creation():
     response = client.list_users()
+    print('Checking for old keys')
     for user in response['Users']:
         username = user['UserName']
         res = client.list_access_keys(UserName=username)
@@ -63,6 +64,8 @@ def check_for_creation():
                 print("Creating " + username + " Access Key")
                 create_tags(username, create_acc_key(username)) 
                 send_new_key_email_report(username, username, MAX_AGE , username)
+    else:
+        print('All keys up to date')
 
 def check_for_deactivation():
     userpaginate = client.get_paginator('list_users')
