@@ -14,6 +14,20 @@ def main():
  check_for_deactivation()
  check_for_deletion()
 
+def create_acc_key(uname):
+    list_users = client.create_access_key(UserName=uname)
+    key_id = list_users['AccessKey']['AccessKeyId']
+    secret_key = list_users['AccessKey']['SecretAccessKey']
+    create_secret(key_id, secret_key, uname) 
+    return key_id
+
+def create_secret(access_key, secret_key, uname):
+    secret.update_secret(
+    SecretId=uname,
+    Description=uname,
+    SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
+    )
+
 def days_old(create_date):
         now = datetime.now(timezone.utc)
         age = now - create_date
@@ -26,7 +40,6 @@ def create_tags(uname, key_id):
         "active_key_id",
     ]
 )
-
     client.tag_user(
     UserName=uname,
     Tags=[
@@ -49,12 +62,11 @@ def check_for_creation():
             age = days_old(create_date)
             if age >= MAX_AGE:
                 print("Creating " + username + " key and set it to Active")
-                create_tags(username, create_access_key(username)) 
+                create_tags(username, create_acc_key(username)) 
                 send_email_report(username, username, MAX_AGE , username)
 
 def check_for_deletion():
     userpaginate = client.get_paginator('list_users')
-
     for user in userpaginate.paginate():
         for username in user['Users']:
             active_key_count = 0
@@ -107,7 +119,6 @@ def check_for_deactivation():
             print(status)
             print(key_count)
             if key_count > 1:
-                #for key in acc_key_to_delete['AccessKeyMetadata']:
                 access_key_age = key['CreateDate']
                 if tags['Tags']:
                     for tag in tags['Tags']:
@@ -130,20 +141,6 @@ def check_for_deactivation():
                             AccessKeyId=key['AccessKeyId'],
                             Status='Inactive')
          
-def create_access_key(uname):
-    list_users = client.create_access_key(UserName=uname)
-    key_id = list_users['AccessKey']['AccessKeyId']
-    secret_key = list_users['AccessKey']['SecretAccessKey']
-    create_secret(key_id, secret_key, uname) 
-    return key_id
-
-def create_secret(access_key, secret_key, uname):
-    secret.update_secret(
-    SecretId=uname,
-    Description=uname,
-    SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
-    )
-
 def send_email_report(email_to, username, age, access_key_id):
         data = (f'New Access Key for user {username} created. To retrive the new key, please login to Secret Manager')
         response =ses.send_email(
