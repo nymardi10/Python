@@ -42,20 +42,11 @@ def create_tags(uname, key_id):
        },
     ]
 )
-
-def de_activate_key(username, Access_Key_Id):
-    client.update_access_key(
-                UserName=username,
-                AccessKeyId=Access_Key_Id,
-                Status='Inactive')
-    print('deactivate')
          
 def create_access_key(uname):
     list_users = client.create_access_key(UserName=uname)
     key_id = list_users['AccessKey']['AccessKeyId']
     secret_key = list_users['AccessKey']['SecretAccessKey']
-    #print(list_users['AccessKey']['AccessKeyId'])
-    #print(list_users['AccessKey']['SecretAccessKey'])
     create_secret(key_id, secret_key, uname) 
 
 def create_secret(access_key, secret_key, uname):
