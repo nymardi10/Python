@@ -65,7 +65,7 @@ def check_for_creation():
             if age >= MAX_AGE:
                 print("Creating " + username + " Access Key")
                 create_tags(username, create_acc_key(username)) 
-                send_new_key_email_report(username, username, MAX_AGE , username)
+                send_new_key_email_report(username)
     else:
         print('***')
         print('All keys up to date')
@@ -141,8 +141,8 @@ def check_for_deletion():
                             )
                             send_delete_key_email_report(username['UserName'])
        
-def send_new_key_email_report(email_to, username, age, access_key_id):
-        data = (f'New Access Key for user {username} created. Please login to Secret Manager in order to retrieve new Access Key')
+def send_new_key_email_report(email_to):
+        data = (f'New Access Key for user {email_to} created. Please login to Secret Manager in order to retrieve new Access Key')
         response =ses.send_email(
         Source=EMAIL_FROM,
         Destination={
