@@ -5,7 +5,7 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'email@emailfrom.com'
+EMAIL_FROM   = 'enter email'
 MAX_AGE      = 90
 
 def main():
@@ -74,7 +74,7 @@ def check_for_creation():
                 if age >= 0:
                     if yes_or_no(f'User {user} Access Key is over 90 days old, do you want to create a new key?'):
                         print("Creating " + username + " Access Key")
-                        create_tags(username, create_acc_key(username))
+                        create_tags(user, create_acc_key(user))
         else:
             print('***')
 
