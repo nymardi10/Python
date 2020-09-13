@@ -5,7 +5,7 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'email from address'
+EMAIL_FROM   = 'isyeniben@gmail.com'
 MAX_AGE      = 0
 
 def main():
@@ -77,9 +77,9 @@ def check_for_creation():
                         create_tags(username, create_acc_key(username))
         else:
             print('***')
-            print('All keys are up to date')
 
 def check_for_deactivation():
+    print('Looking for keys that are older then 90 days to de-activate')
     userpaginate = client.get_paginator('list_users')
     for user in userpaginate.paginate():
         for username in user['Users']:
@@ -119,6 +119,7 @@ def check_for_deactivation():
 
 def check_for_deletion():
     userpaginate = client.get_paginator('list_users')
+    print('Looking for inactive keys that are older then 90 days that are ready to be deleted')
     for user in userpaginate.paginate():
         for username in user['Users']:
             active_key_count = 0
@@ -126,33 +127,39 @@ def check_for_deletion():
             tags = client.list_user_tags(UserName = username['UserName'])
             acc_key_to_delete = client.list_access_keys(UserName = username['UserName'])
             for key in acc_key_to_delete['AccessKeyMetadata']:
-                status = key['Status']
-                if status == 'Active':
+                if key['Status'] == 'Active':
                     active_key_count += 1
                 else: 
                     inactive_key_count += 1
             if active_key_count >= 1 and inactive_key_count >= 1:
-                access_key_age = key['CreateDate']
+                #access_key_age = key['CreateDate']
                 if tags['Tags']:
                     for tag in tags['Tags']:
                         if tag['Key'] == 'active_key_id':
-                           active_key_value = tag['Value']
+                            active_key_value = tag['Value']
                 delete_all = False
                 for key in acc_key_to_delete['AccessKeyMetadata']:
-                    if key['AccessKeyId'] == active_key_value:
-                        create_date = key['CreateDate']
-                        age = days_old(create_date)
-                        if age >= 2:
-                            delete_all = True
-                            break
+                  if tags['Tags']:
+                    for tag in tags['Tags']:
+                        if tag['Key'] == 'active_key_id':
+                            active_key_value = tag['Value']
+                            if key['AccessKeyId'] == active_key_value:
+                                create_date = key['CreateDate']
+                                age = days_old(create_date)
+                                if age >= 0:
+                                    delete_all = True
+                                    break
                 if delete_all:  
                     for key in acc_key_to_delete['AccessKeyMetadata']:
                         if key['AccessKeyId'] != active_key_value and key['Status'] == 'Inactive':
+                            print(f'Deleting access key for user account: ' + username['UserName'])
                             client.delete_access_key(
                             UserName=username['UserName'],
                             AccessKeyId=key['AccessKeyId']
                             )
                             send_delete_key_email_report(username['UserName'])
+        print('All Keys up to date')
+        
        
 def send_new_key_email_report(email_to):
         data = (f'New Access Key for user {email_to} created. Please login to Secret Manager in order to retrieve your new Access Key')
