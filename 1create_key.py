@@ -59,25 +59,25 @@ def yes_or_no(question):
             return False
 
 def check_for_creation():
-    response = client.list_users()
+    userpaginate = client.get_paginator('list_users')
     print('Checking for old keys')
-    for user in response['Users']:
-        username = user['UserName']
-        res = client.list_access_keys(UserName=username)
-        print('*')
-        for status in res['AccessKeyMetadata']:
-            access_key_id = status['AccessKeyId']
-            create_date = status['CreateDate']
-            age = days_old(create_date)
-            print('**')
-            if age >= MAX_AGE:
-              if yes_or_no(f'User {username} Key has expired, do you want to create a new key?'):
-                print("Creating " + username + " Access Key")
-                create_tags(username, create_acc_key(username)) 
-                send_new_key_email_report(username)
-    else:
-        print('***')
-        print('All keys are up to date')
+    for users in userpaginate.paginate():
+        for username in users['Users']:
+            user = username['UserName']
+            res = client.list_access_keys(UserName = user)
+            print('*')
+            for status in res['AccessKeyMetadata']:
+                access_key_id = status['AccessKeyId']
+                create_date = status['CreateDate']
+                age = days_old(create_date)
+                print('**')
+                if age >= 0:
+                    if yes_or_no(f'User {user} Access Key is over 90 days old, do you want to create a new key?'):
+                        print("Creating " + username + " Access Key")
+                        create_tags(username, create_acc_key(username))
+        else:
+            print('***')
+            print('All keys are up to date')
 
 def check_for_deactivation():
     userpaginate = client.get_paginator('list_users')
