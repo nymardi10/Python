@@ -6,7 +6,7 @@ secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
 EMAIL_FROM   = 'isyeniben@gmail.com'
-MAX_AGE      = 0
+MAX_AGE      = 90
 
 def main():
 
@@ -105,7 +105,7 @@ def check_for_deactivation():
                            if key['AccessKeyId'] == active_key_value:
                             create_date = key['CreateDate']
                             age = days_old(create_date)
-                            if age >=1:
+                            if age >= 100:
                               deactivate_all = True
                               break
                 if deactivate_all:  
@@ -146,7 +146,7 @@ def check_for_deletion():
                             if key['AccessKeyId'] == active_key_value:
                                 create_date = key['CreateDate']
                                 age = days_old(create_date)
-                                if age >= 0:
+                                if age >= 110:
                                     delete_all = True
                                     break
                 if delete_all:  
