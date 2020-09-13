@@ -6,7 +6,7 @@ secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
 EMAIL_FROM   = 'isyeniben@gmail.com'
-MAX_AGE      = 2
+MAX_AGE      = 0
 
 def main():
 
@@ -50,6 +50,14 @@ def create_tags(uname, key_id):
     ]
 )
 
+def yes_or_no(question):
+    while "the answer is invalid":
+        reply = str(input(question+' (y/n): ')).lower().strip()
+        if reply[:1] == 'y':
+            return True
+        if reply[:1] == 'n':
+            return False
+
 def check_for_creation():
     response = client.list_users()
     print('Checking for old keys')
@@ -63,12 +71,13 @@ def check_for_creation():
             age = days_old(create_date)
             print('**')
             if age >= MAX_AGE:
+              if yes_or_no(f'User {username} Key has expired, do you want to create a new key?'):
                 print("Creating " + username + " Access Key")
                 create_tags(username, create_acc_key(username)) 
                 send_new_key_email_report(username)
     else:
         print('***')
-        print('All keys up to date')
+        print('All keys are up to date')
 
 def check_for_deactivation():
     userpaginate = client.get_paginator('list_users')
@@ -89,12 +98,16 @@ def check_for_deactivation():
                            active_key_value = tag['Value']
                 deactivate_all = False
                 for key in acc_key_to_delete['AccessKeyMetadata']:
-                    if key['AccessKeyId'] == active_key_value:
-                        create_date = key['CreateDate']
-                        age = days_old(create_date)
-                        if age >=3:
-                            deactivate_all = True
-                            break
+                    if tags['Tags']:
+                        for tag in tags['Tags']:
+                         if tag['Key'] == 'active_key_id':
+                           active_key_value = tag['Value']
+                           if key['AccessKeyId'] == active_key_value:
+                            create_date = key['CreateDate']
+                            age = days_old(create_date)
+                            if age >=1:
+                              deactivate_all = True
+                              break
                 if deactivate_all:  
                     for key in acc_key_to_delete['AccessKeyMetadata']:
                         if key['AccessKeyId'] != active_key_value:
@@ -129,7 +142,7 @@ def check_for_deletion():
                     if key['AccessKeyId'] == active_key_value:
                         create_date = key['CreateDate']
                         age = days_old(create_date)
-                        if age >= 4:
+                        if age >= 2:
                             delete_all = True
                             break
                 if delete_all:  
@@ -142,7 +155,7 @@ def check_for_deletion():
                             send_delete_key_email_report(username['UserName'])
        
 def send_new_key_email_report(email_to):
-        data = (f'New Access Key for user {email_to} created. Please login to Secret Manager in order to retrieve new Access Key')
+        data = (f'New Access Key for user {email_to} created. Please login to Secret Manager in order to retrieve your new Access Key')
         response =ses.send_email(
         Source=EMAIL_FROM,
         Destination={
