@@ -5,7 +5,7 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'isyeniben@gmail.com'
+EMAIL_FROM   = 'email from address'
 MAX_AGE      = 0
 
 def main():
