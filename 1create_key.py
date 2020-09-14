@@ -61,25 +61,27 @@ def yes_or_no(question):
 def check_for_creation():
     userpaginate = client.get_paginator('list_users')
     print('Checking for old keys')
+    print('*')
     for users in userpaginate.paginate():
         for username in users['Users']:
             user = username['UserName']
             res = client.list_access_keys(UserName = user)
-            print('*')
             for status in res['AccessKeyMetadata']:
                 access_key_id = status['AccessKeyId']
                 create_date = status['CreateDate']
                 age = days_old(create_date)
-                print('**')
-                if age >= 0:
+                if age >= MAX_AGE:
                     if yes_or_no(f'User {user} Access Key is over 90 days old, do you want to create a new key?'):
                         print('Creating  + {username} + Access Key')
                         create_tags(user, create_acc_key(user))
         else:
-            print('***')
+            print('**')
+            print('All Keys are up to date')
+            print('-----------------------')
 
 def check_for_deactivation():
     print('Looking for keys that are older then 90 days to de-activate')
+    print('-----------------------------------------------------------')
     userpaginate = client.get_paginator('list_users')
     for user in userpaginate.paginate():
         for username in user['Users']:
@@ -91,7 +93,6 @@ def check_for_deactivation():
                 if status == 'Active':
                     key_count += 1
                     if key_count > 1:
-                #access_key_age = key['CreateDate']
                         if tags['Tags']:
                             for tag in tags['Tags']:
                                 if tag['Key'] == 'active_key_id':
@@ -115,11 +116,12 @@ def check_for_deactivation():
                             UserName=username['UserName'],
                             AccessKeyId=key['AccessKeyId'],
                             Status='Inactive')
-                            send_inactive_key_email_report(username['UserName'])
+                            #send_inactive_key_email_report(username['UserName'])
 
 def check_for_deletion():
     userpaginate = client.get_paginator('list_users')
-    print('Looking for inactive keys that are older then 90 days that are ready to be deleted')
+    print('Looking for inactive keys to delete')
+    print('-----------------------------------')
     for user in userpaginate.paginate():
         for username in user['Users']:
             active_key_count = 0
@@ -157,9 +159,9 @@ def check_for_deletion():
                             UserName=username['UserName'],
                             AccessKeyId=key['AccessKeyId']
                             )
-                            send_delete_key_email_report(username['UserName'])
-        print('All Keys are up to date')
-        
+                            #send_delete_key_email_report(username['UserName'])
+        print('Check Complete')
+        print('--------------')
        
 def send_new_key_email_report(email_to):
         data = (f'New Access Key for user {email_to} created. Please login to Secret Manager in order to retrieve your new Access Key')
