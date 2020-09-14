@@ -5,7 +5,7 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'enter email'
+EMAIL_FROM   = 'email from address'
 MAX_AGE      = 90
 
 def main():
@@ -73,7 +73,7 @@ def check_for_creation():
                 print('**')
                 if age >= 0:
                     if yes_or_no(f'User {user} Access Key is over 90 days old, do you want to create a new key?'):
-                        print("Creating " + username + " Access Key")
+                        print('Creating  + {username} + Access Key')
                         create_tags(user, create_acc_key(user))
         else:
             print('***')
@@ -90,12 +90,12 @@ def check_for_deactivation():
                 status = key['Status']
                 if status == 'Active':
                     key_count += 1
-            if key_count > 1:
-                access_key_age = key['CreateDate']
-                if tags['Tags']:
-                    for tag in tags['Tags']:
-                        if tag['Key'] == 'active_key_id':
-                           active_key_value = tag['Value']
+                    if key_count > 1:
+                #access_key_age = key['CreateDate']
+                        if tags['Tags']:
+                            for tag in tags['Tags']:
+                                if tag['Key'] == 'active_key_id':
+                                    active_key_value = tag['Value']
                 deactivate_all = False
                 for key in acc_key_to_delete['AccessKeyMetadata']:
                     if tags['Tags']:
@@ -158,7 +158,7 @@ def check_for_deletion():
                             AccessKeyId=key['AccessKeyId']
                             )
                             send_delete_key_email_report(username['UserName'])
-        print('All Keys up to date')
+        print('All Keys are up to date')
         
        
 def send_new_key_email_report(email_to):
