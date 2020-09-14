@@ -7,6 +7,9 @@ ses = boto3.client('ses')
 
 EMAIL_FROM   = 'email from address'
 MAX_AGE      = 90
+INACTIVE_DAYS = 100
+DELETE_DAYS = 110
+
 
 def main():
 
@@ -106,7 +109,7 @@ def check_for_deactivation():
                            if key['AccessKeyId'] == active_key_value:
                             create_date = key['CreateDate']
                             age = days_old(create_date)
-                            if age >= 100:
+                            if age >= INACTIVE_DAYS:
                               deactivate_all = True
                               break
                 if deactivate_all:  
@@ -116,7 +119,7 @@ def check_for_deactivation():
                             UserName=username['UserName'],
                             AccessKeyId=key['AccessKeyId'],
                             Status='Inactive')
-                            #send_inactive_key_email_report(username['UserName'])
+                            send_inactive_key_email_report(username['UserName'])
 
 def check_for_deletion():
     userpaginate = client.get_paginator('list_users')
@@ -134,7 +137,6 @@ def check_for_deletion():
                 else: 
                     inactive_key_count += 1
             if active_key_count >= 1 and inactive_key_count >= 1:
-                #access_key_age = key['CreateDate']
                 if tags['Tags']:
                     for tag in tags['Tags']:
                         if tag['Key'] == 'active_key_id':
@@ -148,7 +150,7 @@ def check_for_deletion():
                             if key['AccessKeyId'] == active_key_value:
                                 create_date = key['CreateDate']
                                 age = days_old(create_date)
-                                if age >= 110:
+                                if age >= DELETE_DAYS:
                                     delete_all = True
                                     break
                 if delete_all:  
@@ -159,7 +161,7 @@ def check_for_deletion():
                             UserName=username['UserName'],
                             AccessKeyId=key['AccessKeyId']
                             )
-                            #send_delete_key_email_report(username['UserName'])
+                            send_delete_key_email_report(username['UserName'])
         print('Check Complete')
         print('--------------')
        
