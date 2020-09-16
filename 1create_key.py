@@ -5,10 +5,10 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'email from address'
-MAX_AGE      = 90
-INACTIVE_DAYS = 100
-DELETE_DAYS = 110
+EMAIL_FROM   = 'nymardi@gmail.com'
+MAX_AGE      = 10
+INACTIVE_DAYS = 11
+DELETE_DAYS = 12
 
 
 def main():
@@ -25,11 +25,20 @@ def create_acc_key(uname):
     return key_id
 
 def create_secret(access_key, secret_key, uname):
-    secret.update_secret(
-    SecretId=uname,
-    Description=uname,
-    SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
-    )
+    userlist = uname
+    mysecretslist = secret.list_secrets()
+    secretlist = []
+    for secretslists in mysecretslist['SecretList']:
+        secretlist += [secretslists['Name']]
+    if uname not in secretlist:
+        print(uname)
+        secret.create_secret(Name=uname)
+    else:
+        secret.update_secret(
+        SecretId=uname,
+        Description=uname,
+        SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
+        )
 
 def days_old(create_date):
         now = datetime.now(timezone.utc)
@@ -75,8 +84,9 @@ def check_for_creation():
                 age = days_old(create_date)
                 if age >= MAX_AGE:
                     if yes_or_no(f'User {user} Access Key is over 90 days old, do you want to create a new key?'):
-                        print('Creating  + {username} + Access Key')
+                        print(f'Creating {user} Access Key')
                         create_tags(user, create_acc_key(user))
+                        #send_new_key_email_report(username['UserName'])
         else:
             print('**')
             print('All Keys are up to date')
