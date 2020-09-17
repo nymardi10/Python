@@ -7,7 +7,7 @@ ses = boto3.client('ses')
 
 EMAIL_FROM   = 'nymardi@gmail.com'
 MAX_AGE      = 10
-INACTIVE_DAYS = 11
+INACTIVE_DAYS = 0
 DELETE_DAYS = 12
 
 
@@ -74,6 +74,7 @@ def check_for_creation():
     userpaginate = client.get_paginator('list_users')
     print('Checking for old keys')
     print('*')
+    key_count=0
     for users in userpaginate.paginate():
         for username in users['Users']:
             user = username['UserName']
@@ -105,16 +106,15 @@ def check_for_deactivation():
                 status = key['Status']
                 if status == 'Active':
                     key_count += 1
-                    if key_count > 1:
-                        if tags['Tags']:
-                            for tag in tags['Tags']:
-                                if tag['Key'] == 'active_key_id':
-                                    active_key_value = tag['Value']
-                deactivate_all = False
-                for key in acc_key_to_delete['AccessKeyMetadata']:
-                    if tags['Tags']:
+                    if key_count > 1 and tags['Tags']:
                         for tag in tags['Tags']:
-                         if tag['Key'] == 'active_key_id':
+                            if tag['Key'] == 'active_key_id':
+                                active_key_value = tag['Value']
+                deactivate_all = False
+            for key in acc_key_to_delete['AccessKeyMetadata']:
+                if tags['Tags']:
+                    for tag in tags['Tags']:
+                        if tag['Key'] == 'active_key_id':
                            active_key_value = tag['Value']
                            if key['AccessKeyId'] == active_key_value:
                             create_date = key['CreateDate']
