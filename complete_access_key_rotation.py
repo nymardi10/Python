@@ -36,25 +36,25 @@ def check_and_list_access_keys():
 
     # Test each key's age and print those that are too old
         for key in keys['AccessKeyMetadata']:
-            akid = key['AccessKeyId']
+            access_key_ids = key['AccessKeyId']
             created = key['CreateDate']
             created_delta = today - created
 
         # if this access key is older than DAYS
             if created + timedelta(days=DAYS) > today:
                 count += 1
-                response = client.get_access_key_last_used(AccessKeyId=akid)
-                akid_last_used = response['AccessKeyLastUsed']
+                response = client.get_access_key_last_used(AccessKeyId=access_key_ids)
+                access_key_ids_last_used = response['AccessKeyLastUsed']
 
                 if not header_printed:
                     header_printed = True
                     print(f'Account, Username, Access Key, Age, Last Used')
 
-                print(f'{account}, {username}, {akid}, {created_delta.days} ', end = '')
+                print(f'{account}, {username}, {access_key_ids}, {created_delta.days} ', end = '')
 
             # Only keys that have actually been used will have last used date
-                if 'LastUsedDate' in akid_last_used:
-                    last_used = akid_last_used['LastUsedDate']
+                if 'LastUsedDate' in access_key_ids_last_used:
+                    last_used = access_key_ids_last_used['LastUsedDate']
                     last_used_delta = today - last_used
                     print(last_used_delta.days)
                 else:
@@ -66,29 +66,29 @@ def rotate_accesskeys():
     userlist=[]
     for user in client.list_users()['Users']:
         username = user['UserName']
-        for akid in client.list_access_keys(UserName=username)['AccessKeyMetadata']:
-            list_user=akid['UserName']
+        for access_key_ids in client.list_access_keys(UserName=username)['AccessKeyMetadata']:
+            list_user=access_key_ids['UserName']
             userlist+=[list_user]
             count = userlist.count(list_user)
             now = datetime.now(timezone.utc)
             key_last_used = client.get_access_key_last_used(
-            AccessKeyId=akid['AccessKeyId']
+            AccessKeyId=access_key_ids['AccessKeyId']
             )
             if count >= 1:
                 for userkeyage in userlist:
-                    create_date = akid['CreateDate']
+                    create_date = access_key_ids['CreateDate']
                     age = now - create_date
                     print('exit 1')
                     if age.days > 90:
                         client.update_access_key(
                         UserName=list_user,
-                        AccessKeyId=akid['AccessKeyId'],
+                        AccessKeyId=access_key_ids['AccessKeyId'],
                         Status='Inactive')
                         print('exit 2')
-            if akid['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
+            if access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
                     client.delete_access_key(
                     UserName=list_user,
-                    AccessKeyId=akid['AccessKeyId']
+                    AccessKeyId=access_key_ids['AccessKeyId']
                     )
                     print('exit 3')
             if count == 2:
