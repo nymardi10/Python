@@ -79,13 +79,13 @@ def rotate_accesskeys():
                     create_date = access_key_ids['CreateDate']
                     age = now - create_date
                     print('exit 1')
-                    if age.days > 90:
+                    if age.days < 0:
                         client.update_access_key(
                         UserName=list_user,
                         AccessKeyId=access_key_ids['AccessKeyId'],
                         Status='Inactive')
                         print('exit 2')
-            if access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
+            if age.days < 0 or access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
                     client.delete_access_key(
                     UserName=list_user,
                     AccessKeyId=access_key_ids['AccessKeyId']
