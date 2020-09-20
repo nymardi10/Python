@@ -74,12 +74,12 @@ def rotate_accesskeys():
             key_last_used = client.get_access_key_last_used(
             AccessKeyId=access_key_ids['AccessKeyId']
             )
-            if count > 1:
+            if count >= 1:
                 for userkeyage in userlist:
                     create_date = access_key_ids['CreateDate']
                     age = now - create_date
                     print('exit 1')
-                    if age.days > 3:
+                    if age.days < 0 and key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
                         client.update_access_key(
                         UserName=list_user,
                         AccessKeyId=access_key_ids['AccessKeyId'],
