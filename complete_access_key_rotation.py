@@ -7,53 +7,17 @@ from botocore.exceptions import ClientError
 client = boto3.client('iam')
 secrets = boto3.client('secretsmanager')
 sts = boto3.client('sts')
+ses = boto3.client('ses')
 
 MAX_AGE = 90
 DAYS = 90
+EMAIL_FROM='nymardi@gmail.com'
 
 def main():
-    #check_for_old_keys()
-    #check_for_tags()
-    #create_new_access_keys()
-    check_for_accesskeys()
+    #check_and_list_access_keys()
+    rotate_accesskeys()
     
-
-def check_for_old_keys():    
-    mysecretslist = secrets.list_secrets()    
-    for user in client.list_users()['Users']:
-        username = user['UserName']
-        #print(username)
-        counter=0
-        res = client.list_access_keys(UserName = username)
-        print(username)
-        """
-        if not res['AccessKeyMetadata']: 
-         for statuses in res['AccessKeyMetadata']:
-            create_date = statuses['CreateDate']
-            now = datetime.now(timezone.utc)
-            age = now - create_date
-            counter=0
-            #tags_list = client.list_user_tags(UserName= user['UserName'])
-            if statuses['Status'] == "Inactive":
-                print(username)
-                print(statuses['AccessKeyId'],statuses['Status'])  
-                client.delete_access_key(
-                UserName=username,
-                AccessKeyId=statuses['AccessKeyId']
-                )
-                
-            if not res['AccessKeyMetadata']:
-                print('here')
-            if age.days > MAX_AGE :
-                print(username)
-                client.update_access_key(
-                UserName=username,
-                AccessKeyId=statuses['AccessKeyId'],
-                Status='Inactive')
-                """
-                
-    
-def check_for_tags():
+def check_and_list_access_keys():
 
     identity = sts.get_caller_identity()
     account = identity['Account']
@@ -98,21 +62,7 @@ def check_for_tags():
 
     sys.exit(count)
 
-def create_new_access_keys():
-    userlist=[]
-    for user in client.list_users()['Users']:
-        username = user['UserName']
-        for akid in client.list_access_keys(UserName=username)['AccessKeyMetadata']:
-            list_user=akid['UserName']
-            userlist+=list_user
-            count = userlist.count(list_user)
-            if count == 0:
-                client.create_access_key(
-                UserName=username
-                )  
-    
-
-def check_for_accesskeys():
+def rotate_accesskeys():
     userlist=[]
     for user in client.list_users()['Users']:
         username = user['UserName']
@@ -121,22 +71,29 @@ def check_for_accesskeys():
             userlist+=[list_user]
             count = userlist.count(list_user)
             now = datetime.now(timezone.utc)
+            key_last_used = client.get_access_key_last_used(
+            AccessKeyId=akid['AccessKeyId']
+            )
             if count > 1:
                 for userkeyage in userlist:
                     create_date = akid['CreateDate']
                     age = now - create_date
-                    if age.days < 1:
+                    print('exit 1')
+                    if age.days < 0:
                         client.update_access_key(
                         UserName=list_user,
                         AccessKeyId=akid['AccessKeyId'],
                         Status='Inactive')
-                if akid['Status'] == 'Inactive':
+                        print('exit 2')
+                if akid['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
                     client.delete_access_key(
                     UserName=list_user,
                     AccessKeyId=akid['AccessKeyId']
                     )
+                    print('exit 3')
                     if count == 2:
-                        print()          
+                        print('exit 4')
+                        #print('Deleting Inactive Access Keys')          
                 while (userlist.count(username)):
                     userlist.remove(username)
     for remove_list in userlist:
@@ -144,7 +101,27 @@ def check_for_accesskeys():
         UserName=remove_list
         )
                             
-    print('All users are up to date with two keys')               
+    print('All users are up to date')       
+
+    def send__key_email_report(email_to):
+        data = (f'User {email_to} Access Key Inactivated. Please login to Secret Manager in order to retrieve new Access Key')
+        response =ses.send_email(
+        Source=EMAIL_FROM,
+        Destination={
+           'ToAddresses':[email_to]
+             },
+             Message={
+                'Subject':{
+                    'Data': ('AWS IAM Access Key Info')
+                },
+                'Body': {
+                    'Text': {
+                        'Data': data
+                    }
+                }
+            })
+        
+        print("Email sent! Message ID:" + response['MessageId'])        
 
 if __name__ == "__main__":
     main()
