@@ -1,4 +1,4 @@
-Python code to inactivate access keys older then 90 days
+Python code to inactivate AWS Access Keys older then 90 days
 
 Algorithm is to look for keys that are inactive or never used or older than specified date
 Logic is as follows
