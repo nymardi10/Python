@@ -9,7 +9,7 @@ secrets = boto3.client('secretsmanager')
 sts = boto3.client('sts')
 ses = boto3.client('ses')
 
-MAX_AGE = 90
+#MAX_AGE = 90
 DAYS = 90
 EMAIL_FROM='nymardi@gmail.com'
 
@@ -18,6 +18,7 @@ def main():
     rotate_accesskeys()
     
 def check_and_list_access_keys():
+
 
     identity = sts.get_caller_identity()
     account = identity['Account']
@@ -62,6 +63,23 @@ def check_and_list_access_keys():
 
     sys.exit(count)
 
+def update_keys(uname,accesskeyid):
+    client.update_access_key(
+    UserName=uname,
+    AccessKeyId=accesskeyid,
+    Status='Inactive')
+
+def delete_keys(uname,accesskeyid):
+    client.delete_access_key(
+    UserName=uname,
+    AccessKeyId=accesskeyid
+    )
+
+def create_keys(uname):
+        client.create_access_key(
+        UserName=uname
+        )
+
 def rotate_accesskeys():
     userlist=[]
     for user in client.list_users()['Users']:
@@ -80,27 +98,18 @@ def rotate_accesskeys():
                     age = now - create_date
                     print('exit 1')
                     if age.days < 0 and key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A':
-                        client.update_access_key(
-                        UserName=list_user,
-                        AccessKeyId=access_key_ids['AccessKeyId'],
-                        Status='Inactive')
+                        update_keys(list_user,access_key_ids['AccessKeyId'])
                         print('exit 2')
-                if age.days > 5 and (access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A'):
-                        client.delete_access_key(
-                        UserName=list_user,
-                        AccessKeyId=access_key_ids['AccessKeyId']
-                        )
+                if age.days < 3 and (access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A'):
+                        delete_keys(list_user,access_key_ids['AccessKeyId'])
                         print('exit 3')
             if count == 2:
-                print('exit 4')
                 #print('Deleting Inactive Access Keys')          
                 while (userlist.count(username)):
                     userlist.remove(username)
-                    print('exit 5')  
+                    print('exit 4')  
     for remove_list in userlist:
-        client.create_access_key(
-        UserName=remove_list
-        )
+        create_keys(remove_list)
                             
     print('All users are up to date')       
 
