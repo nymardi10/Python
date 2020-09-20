@@ -85,7 +85,7 @@ def rotate_accesskeys():
                         AccessKeyId=access_key_ids['AccessKeyId'],
                         Status='Inactive')
                         print('exit 2')
-                if age.days < 3 and (access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A'):
+                if age.days > 5 and (access_key_ids['Status'] == 'Inactive' or key_last_used['AccessKeyLastUsed']['ServiceName'] == 'N/A'):
                         client.delete_access_key(
                         UserName=list_user,
                         AccessKeyId=access_key_ids['AccessKeyId']
@@ -96,6 +96,7 @@ def rotate_accesskeys():
                 #print('Deleting Inactive Access Keys')          
                 while (userlist.count(username)):
                     userlist.remove(username)
+                    print('exit 5')  
     for remove_list in userlist:
         client.create_access_key(
         UserName=remove_list
