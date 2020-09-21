@@ -5,10 +5,10 @@ client = boto3.client('iam')
 secret = boto3.client('secretsmanager')
 ses = boto3.client('ses')
 
-EMAIL_FROM   = 'nymardi@gmail.com'
-MAX_AGE      = 10
-INACTIVE_DAYS = 0
-DELETE_DAYS = 12
+EMAIL_FROM   = 'email@company.com'
+MAX_AGE      = 90
+INACTIVE_DAYS = 100
+DELETE_DAYS = 110
 
 
 def main():
