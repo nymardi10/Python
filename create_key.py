@@ -64,7 +64,7 @@ def create_tags(uname, key_id):
 #This portion is for testing before putting it in production, 
 #It will confirm to validate you want to create a new Access Key
 #This function will fail if used with Lambda
-#If you use this with CloudWatch and Lambda, take off line 90
+#If you use this with CloudWatch and Lambda, take off line 92
 def yes_or_no(question):
     while "the answer is invalid":
         reply = str(input(question+' (y/n): ')).lower().strip()
