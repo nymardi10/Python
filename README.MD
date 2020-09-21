@@ -1,3 +1,8 @@
+Important NOTE: Make sure you understand what the code does and how it will affect your environment. 
+		Make sure you undestand and update the variables MAX_AGE and DAYS
+		This code will delete all inactive keys automatically without notifying
+		This code is for testing purposes only!!!
+
 Python code to inactivate AWS Access Keys older then 90 days
 
 Algorithm is to look for keys that are inactive or never used or older than specified date
