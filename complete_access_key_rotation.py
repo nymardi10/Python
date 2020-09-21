@@ -9,8 +9,8 @@ secrets = boto3.client('secretsmanager')
 sts = boto3.client('sts')
 ses = boto3.client('ses')
 
-MAX_AGE = 1
-DAYS = 93
+MAX_AGE = 100
+DAYS = 90
 EMAIL_FROM='email@company.com'
 
 def main():
