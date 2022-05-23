@@ -11,11 +11,6 @@ INACTIVE_DAYS = 100
 DELETE_DAYS = 110
 
 
-def main():
-
- check_for_creation()
- check_for_deactivation()
- check_for_deletion()
 #Create new Access Key function
 def create_acc_key(uname):
     list_users = client.create_access_key(UserName=uname)
@@ -23,6 +18,7 @@ def create_acc_key(uname):
     secret_key = list_users['AccessKey']['SecretAccessKey']
     create_secret(key_id, secret_key, uname) 
     return key_id
+
 #Create new Secret Manager object with new Access Key information
 def create_secret(access_key, secret_key, uname):
     userlist = uname
@@ -39,19 +35,21 @@ def create_secret(access_key, secret_key, uname):
         Description=uname,
         SecretString='{} {}'.format('AccessKey: ' + access_key,'SecretKey: ' + secret_key)
         )
+
 #Calculate the age of current Access Keys function
 def days_old(create_date):
         now = datetime.now(timezone.utc)
         age = now - create_date
         return age.days    
+
 #Creta Tag with current Access Key information
 def create_tags(uname, key_id):
     client.untag_user(
-    UserName=uname,
-    TagKeys=[
-        "active_key_id",
-    ]
-)
+        UserName=uname,
+        TagKeys=[
+            "active_key_id",
+        ]
+    )
     client.tag_user(
     UserName=uname,
     Tags=[
@@ -61,6 +59,7 @@ def create_tags(uname, key_id):
        },
     ]
 )
+
 #This portion is for testing before putting it in production, 
 #It will confirm to validate you want to create a new Access Key
 #This function will fail if used with Lambda
@@ -72,6 +71,7 @@ def yes_or_no(question):
             return True
         if reply[:1] == 'n':
             return False
+
 #Search for keys that are older then MAX_AGE and do something
 def check_for_creation():
     #List all users
@@ -97,6 +97,7 @@ def check_for_creation():
             print('**')
             print('All Keys are up to date')
             print('-----------------------')
+
 #Check to see if the keys ready to be inactivated and Tag for future
 def check_for_deactivation():
     print('Looking for keys that are older then 90 days to de-activate')
@@ -250,6 +251,11 @@ def send_delete_key_email_report(email_to):
             })
         
         print("Email sent! Message ID:" + response['MessageId'])
-    
+
+def main():
+    check_for_creation()
+    check_for_deactivation()
+    check_for_deletion()
+
 if __name__ == "__main__":
     main()

@@ -1,3 +1,18 @@
+## INSTALLATION
+python 3.8
+
+### Configuration
+```
+vim ~/.aws/credentials
+[default]
+aws_access_key_id = YOUR_KEY
+aws_secret_access_key = YOUR_SECRET
+
+vim ~/.aws/config
+[default]
+region=us-east-1
+```
+
 are there two keys or one?
 if two keys
 	check the age and delete the key that is inactive 
